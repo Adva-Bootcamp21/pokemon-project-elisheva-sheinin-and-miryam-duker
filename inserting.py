@@ -54,12 +54,25 @@ def insert_to_database():
             print("Error")
 
 
+def heaviest_pokemon():
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('''SELECT name AS heaviest 
+                            FROM pokemon 
+                            WHERE weight = (
+                                SELECT MAX(weight) 
+                                FROM pokemon)''')
+            result = cursor.fetchall()
+            return result[0]['heaviest']
+    except:
+        print("Error")
+
+
 def find_by_type(type):
     try:
         with connection.cursor() as cursor:
             query = 'SELECT name FROM pokemon WHERE pokemon.type = (%s)'
             value = (type)
-            cursor = connection.cursor()
             cursor.execute(query, value)
             pokemons = cursor.fetchall()
             pokemons_names = []
@@ -68,6 +81,23 @@ def find_by_type(type):
             return pokemons_names
     except:
         print("error")
+
+
+def find_owners(pokemon_name):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('''SELECT t.name 
+                            FROM pokemon p, owned_by o, trainer t 
+                            WHERE p.id = o.pokemon_id 
+                            AND t.id = o.trainer_id 
+                            AND p.name = %s''', pokemon_name)
+            result = cursor.fetchall()
+            name_list = []
+            for name in result:
+                name_list.append(name['name'])
+            return name_list
+    except:
+        print("Error")
 
 
 def find_roster(trainer_name):
@@ -96,40 +126,20 @@ def find_roster(trainer_name):
         print("error")
 
 
-def heaviest_pokemon():
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('''SELECT name AS heaviest 
-                            FROM pokemon 
-                            WHERE weight = (
-                                SELECT MAX(weight) 
-                                FROM pokemon)''')
-            result = cursor.fetchall()
-            return result[0]['heaviest']
-    except:
-        print("Error")
-
-
-def find_owners(pokemon_name):
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('''SELECT t.name 
-                            FROM pokemon p, owned_by o, trainer t 
-                            WHERE p.id = o.pokemon_id 
-                            AND t.id = o.trainer_id 
-                            AND p.name = %s''', pokemon_name)
-            result = cursor.fetchall()
-            name_list = []
-            for name in result:
-                name_list.append(name['name'])
-            return name_list
-    except:
-        print("Error")
-
 
 def finds_most_owned():
-    pass
+    with connection.cursor() as cursor:
+        cursor.execute('''SELECT pokemon_id
+                        FROM (
+                        SELECT pokemon_id, COUNT(*) as count
+                        FROM owned_by
+                        GROUP BY pokemon_id) as A
+                        WHERE count >= ALL(SELECT  COUNT(*)
+                        FROM owned_by
+                        GROUP BY pokemon_id)''')
+        result = cursor.fetchall()
+        most_owned = []
+        for pokemon in result:
+            most_owned.append(pokemon['pokemon_id'])
+        return most_owned
 
-# insert_to_database()
-# print(heaviest_pokemon())
-# print(find_owners("gengar"))

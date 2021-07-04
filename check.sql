@@ -12,10 +12,22 @@ USE pokemon;
 -- SELECT max()
 -- SELECT count.pokemon_id
 -- FROM (
-SELECT pokemon_id
-, MAX(c)
+-- SELECT pokemon_id
+-- , MAX(c)
+-- FROM (
+-- SELECT pokemon_id, COUNT(*) as count
+-- FROM owned_by
+-- GROUP BY pokemon_id
+-- ) as count
+-- WHERE c = ALL( 
+-- SELECT Max(c)
+
+
+SELECT pokemon_id, count
 FROM (
-SELECT pokemon_id, COUNT(*) as c
+    SELECT pokemon_id, COUNT(*) as count
 FROM owned_by
-GROUP BY pokemon_id
-) as count
+GROUP BY pokemon_id) as A
+WHERE count >= ALL(SELECT  COUNT(*)
+                FROM owned_by
+                GROUP BY pokemon_id)
