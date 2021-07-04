@@ -25,7 +25,7 @@ CREATE TABLE types(
 );
 
 
--- DROP TABLE ownedby;
+-- DROP TABLE owned_by;
 -- DROP TABLE trainer;
 -- DROP TABLE pokemon;
 
