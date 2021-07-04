@@ -18,6 +18,6 @@ CREATE TABLE owned_by(
   FOREIGN KEY (trainer_id) REFERENCES trainer(id),
   PRIMARY KEY (pokemon_id, trainer_id)
 );
--- DROP TABLE owend_by;
+-- DROP TABLE ownedby;
 -- DROP TABLE trainer;
 -- DROP TABLE pokemon;
