@@ -105,7 +105,6 @@ def find_roster(trainer_name):
         with connection.cursor() as cursor:
             query = 'SELECT id FROM trainer WHERE name = (%s)'
             value = (trainer_name)
-            cursor = connection.cursor()
             cursor.execute(query, value)
             trainer_id = cursor.fetchall()[0]['id']
             query = 'SELECT pokemon_id FROM owned_by WHERE trainer_id = (%s)'
@@ -126,20 +125,35 @@ def find_roster(trainer_name):
         print("error")
 
 
-
 def finds_most_owned():
-    with connection.cursor() as cursor:
-        cursor.execute('''SELECT pokemon_id
-                        FROM (
-                        SELECT pokemon_id, COUNT(*) as count
-                        FROM owned_by
-                        GROUP BY pokemon_id) as A
-                        WHERE count >= ALL(SELECT  COUNT(*)
-                        FROM owned_by
-                        GROUP BY pokemon_id)''')
-        result = cursor.fetchall()
-        most_owned = []
-        for pokemon in result:
-            most_owned.append(pokemon['pokemon_id'])
-        return most_owned
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('''SELECT pokemon_id
+                            FROM (
+                            SELECT pokemon_id, COUNT(*) as count
+                            FROM owned_by
+                            GROUP BY pokemon_id) as A
+                            WHERE count >= ALL(SELECT  COUNT(*)
+                            FROM owned_by
+                            GROUP BY pokemon_id)''')
+            result = cursor.fetchall()
+            most_owned = []
+            for pokemon in result:
+                most_owned.append(pokemon['pokemon_id'])
+            return most_owned
+    except:
+        print("error")
 
+
+def add_pokemon(pokemon):
+    try:
+        with connection.cursor() as cursor:
+            query = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
+            values = (pokemon["id"], pokemon["name"],
+                       pokemon["height"], pokemon["weight"])
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+    except:
+        print("error")
+        return False
