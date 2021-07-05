@@ -205,4 +205,4 @@ def delete_pokemon_sql(pokemon_id):
         print("error")
 
 
-insert_to_database()
+# insert_to_database()
