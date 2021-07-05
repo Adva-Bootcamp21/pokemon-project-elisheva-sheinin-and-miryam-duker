@@ -3,6 +3,7 @@ USE pokemon;
 -- SELECT * FROM pokemon;
 -- SELECT * FROM trainer;
 -- SELECT * FROM owned_by;
+SELECT * FROM types;
 
 -- SELECT name AS heaviest FROM pokemon
 -- WHERE weight = (SELECT MAX(weight) FROM pokemon);
@@ -37,7 +38,7 @@ USE pokemon;
 -- INSERT INTO pokemon VALUES (160, 'miryam', 160, 40);
 -- INSERT INTO types VALUES (160, '['a','b','c']');
 
-CREATE TABLE try(
-    try_id INTEGER PRIMARY KEY ,
-    type VARCHAR(25) ARRAY[VARCHAR(25)]
-);
+-- CREATE TABLE try(
+--     try_id INTEGER PRIMARY KEY ,
+--     type VARCHAR(25) ARRAY[VARCHAR(25)]
+-- );
