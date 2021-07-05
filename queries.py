@@ -150,10 +150,23 @@ def add_pokemon(pokemon):
         with connection.cursor() as cursor:
             query = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
             values = (pokemon["id"], pokemon["name"],
-                       pokemon["height"], pokemon["weight"])
+                      pokemon["height"], pokemon["weight"])
             cursor.execute(query, values)
             connection.commit()
             return True
     except:
         print("error")
         return False
+
+
+def delete_pokemon_sql(pokemon_id):
+    try:
+        with connection.cursor() as cursor:
+            query = 'DELETE FROM pokemon WHERE id = (%s)'
+            values = (pokemon_id)
+            cursor.execute(query, values)
+            connection.commit()
+            return "Deleted pokemon successfully"
+    except:
+        print("error")
+
