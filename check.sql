@@ -6,6 +6,11 @@ USE pokemon;
 -- SELECT * FROM types;
 -- SELECT * FROM has_types;
 
+-- SELECT p.name 
+--                     FROM pokemon p, has_types h, types t 
+--                     WHERE p.id = h.pokemon_id
+--                     AND  h.type_id = t.id
+--                     AND t.type_name = 'Grass'
 -- SELECT name AS heaviest FROM pokemon
 -- WHERE weight = (SELECT MAX(weight) FROM pokemon);
 
