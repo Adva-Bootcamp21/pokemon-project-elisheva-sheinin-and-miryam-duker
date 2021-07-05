@@ -32,4 +32,12 @@ USE pokemon;
 --                 FROM owned_by
 --                 GROUP BY pokemon_id)
 
-SELECT * FROM pokemon WHERE name = "miryam"
+-- SELECT * FROM pokemon WHERE name = "miryam";
+
+-- INSERT INTO pokemon VALUES (160, 'miryam', 160, 40);
+-- INSERT INTO types VALUES (160, '['a','b','c']');
+
+CREATE TABLE try(
+    try_id INTEGER PRIMARY KEY ,
+    type VARCHAR(25) ARRAY[VARCHAR(25)]
+);

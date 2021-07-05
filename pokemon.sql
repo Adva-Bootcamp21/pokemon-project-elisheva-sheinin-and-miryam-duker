@@ -17,10 +17,16 @@ CREATE TABLE owned_by(
   FOREIGN KEY (trainer_id) REFERENCES trainer(id) ON DELETE CASCADE,
   PRIMARY KEY (pokemon_id, trainer_id)
 );
-CREATE TABLE types(
-    pokemon_id INTEGER PRIMARY KEY ,
-    type VARCHAR (25),
-    FOREIGN KEY (pokemon_id) REFERENCES pokemon(id) ON DELETE CASCADE
+CREATE table types(
+  id INTEGER PRIMARY KEY,
+  type_name VARCHAR (25)
+);
+CREATE TABLE has_types(
+  pokemon_id INTEGER,
+  type_id INTEGER ,
+  FOREIGN KEY (pokemon_id) REFERENCES pokemon(id) ON DELETE CASCADE,
+  FOREIGN KEY (type_id) REFERENCES types(id) ON DELETE CASCADE,
+  PRIMARY KEY (pokemon_id, type_id)
 );
 
 -- DROP TABLE owned_by;

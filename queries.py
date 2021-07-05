@@ -1,5 +1,6 @@
 import pymysql
 import json
+import requests
 
 connection = pymysql.connect(
     host="localhost",
@@ -14,15 +15,28 @@ if connection.open:
     print("the connection is opened")
 
 
-def get_data():
+def get_data_from_json():
     with open("pokemon_data.json") as pokemon_data:
         data = json.load(pokemon_data)
     return data
 
 
+def get_data_from_API():
+    data = requests.get('https://pokeapi.co/api/v2')
+    return data
+
+
+def get_type_id():
+    with connection.cursor() as cursor:
+        cursor.execute('''SELECT COUNT(*)
+                        FROM types''')
+        result = cursor.fetchall()
+    return result + 1
+
 def insert_to_database():
-    data = get_data()
+    data = get_data_from_json()
     trainers = []
+
     for i in data:
         # try:
         with connection.cursor() as cursor:
@@ -65,22 +79,23 @@ def heaviest_pokemon():
             result = cursor.fetchall()
             return result[0]['heaviest']
     except:
-        print("Error")
+        print("Error: Failed to select the heaviest pokemon")
 
 
 def find_by_type(type):
     try:
         with connection.cursor() as cursor:
-            query = 'SELECT name FROM pokemon WHERE pokemon.type = (%s)'
-            value = (type)
-            cursor.execute(query, value)
+            cursor.execute('''SELECT name 
+                    FROM pokemon p, types t 
+                    WHERE p.pokemon_id = t.pokemon_id 
+                    AND t.type = (%s)''', type)
             pokemons = cursor.fetchall()
             pokemons_names = []
             for i in pokemons:
                 pokemons_names.append(i['name'])
             return pokemons_names
     except:
-        print("error")
+        print("Error: Failed to find pokemon by type")
 
 
 def find_owners(pokemon_name):
@@ -97,24 +112,28 @@ def find_owners(pokemon_name):
                 name_list.append(name['name'])
             return name_list
     except:
-        print("Error")
+        print("Error: Failed to find owners to this pokemon")
 
 
 def find_roster(trainer_name):
     try:
         with connection.cursor() as cursor:
-            query = 'SELECT id FROM trainer WHERE name = (%s)'
-            value = (trainer_name)
-            cursor.execute(query, value)
+            cursor.execute('''SELECT id 
+                            FROM trainer 
+                            WHERE name = (%s)'''
+                            ,trainer_name)
             trainer_id = cursor.fetchall()[0]['id']
-            query = 'SELECT pokemon_id FROM owned_by WHERE trainer_id = (%s)'
-            value = trainer_id
-            cursor.execute(query, value)
+            cursor.execute('''SELECT pokemon_id 
+                            FROM owned_by 
+                            WHERE trainer_id = (%s)'''
+                            , trainer_id)
             pokemon_ids = cursor.fetchall()
             pokemons = []
             for i in pokemon_ids:
-                query = "SELECT name FROM pokemon WHERE id = (%s)"
-                cursor.execute(query, i['pokemon_id'])
+                cursor.execute('''SELECT name 
+                                FROM pokemon 
+                                WHERE id = (%s)'''
+                                , i['pokemon_id'])
                 pokemons.append(cursor.fetchone())
             pokemon_names = []
             for i in pokemons:
@@ -153,6 +172,21 @@ def add_pokemon(pokemon):
                       pokemon["height"], pokemon["weight"])
             cursor.execute(query, values)
             connection.commit()
+            for type in pokemon["types"]:
+                cursor.execute('''SELECT id 
+                                FROM types
+                                WHERE type = %s'''
+                               , type)
+                result = cursor.fetchall()
+                type_id = get_type_id()
+                if result == 'no data':
+                    type_query = 'INSERT INTO types values(%s, %s)'
+                    type_values = (type_id, type)
+                    cursor.execute(type_query, type_values)
+                has_type_query = 'INSERT INTO has_types values(%s, %s)'
+                has_type_values = (pokemon["id"], type_id)
+                cursor.execute(has_type_query, has_type_values)
+
             return True
     except:
         print("error")

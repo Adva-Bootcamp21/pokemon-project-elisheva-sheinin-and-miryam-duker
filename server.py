@@ -31,6 +31,7 @@ def get_pokemon_by_type(type):
     # find_by_type(type)
     pass
 
+
 @app.route('/delete_pokemon/<pokemon_id>', methods=['DELETE'])
 def delete_pokemon(pokemon_id):
     res = delete_pokemon_sql(pokemon_id)
