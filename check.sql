@@ -3,7 +3,8 @@ USE pokemon;
 -- SELECT * FROM pokemon;
 -- SELECT * FROM trainer;
 -- SELECT * FROM owned_by;
-SELECT * FROM types;
+-- SELECT * FROM types;
+-- SELECT * FROM has_types;
 
 -- SELECT name AS heaviest FROM pokemon
 -- WHERE weight = (SELECT MAX(weight) FROM pokemon);
