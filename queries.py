@@ -37,6 +37,7 @@ def get_type_id():
 def insert_to_database():
     data = get_data_from_json()
     trainers = []
+<<<<<<< HEAD
     types = []
     for pokemon in data:
         # try:
@@ -87,6 +88,39 @@ def insert_to_database():
 
 
 insert_to_database()
+=======
+
+    for i in data:
+        # try:
+        with connection.cursor() as cursor:
+            query1 = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
+            values1 = (i["id"], i["name"],
+                       i["height"], i["weight"])
+            cursor.execute(query1, values1)
+            connection.commit()
+            query2 = 'INSERT INTO trainer VALUES (%s,%s,%s)'
+            query3 = 'INSERT INTO owned_by VALUES (%s,%s)'
+            for j in i["ownedBy"]:
+                if j not in trainers:
+                    trainers.append(j)
+                    trainer_id = len(trainers)
+                    values2 = (trainer_id, j["name"], j["town"])
+                    cursor.execute(query2, values2)
+                    connection.commit()
+                else:
+                    counter = 1
+                    for trainer in trainers:
+                        if trainer == j:
+                            trainer_id = counter
+                            break
+                        counter += 1
+                values3 = (i["id"], trainer_id)
+                cursor.execute(query3, values3)
+                connection.commit()
+        # except:
+        print("Error")
+
+>>>>>>> miryam
 
 
 def heaviest_pokemon():
@@ -224,3 +258,9 @@ def delete_pokemon_sql(pokemon_id):
             return "Deleted pokemon successfully"
     except:
         print("error")
+<<<<<<< HEAD
+=======
+
+
+insert_to_database()
+>>>>>>> miryam
