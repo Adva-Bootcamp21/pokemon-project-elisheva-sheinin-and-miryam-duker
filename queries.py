@@ -33,39 +33,60 @@ def get_type_id():
         result = cursor.fetchall()
     return result + 1
 
+
 def insert_to_database():
     data = get_data_from_json()
     trainers = []
-
-    for i in data:
+    types = []
+    for pokemon in data:
         # try:
         with connection.cursor() as cursor:
-            query1 = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
-            values1 = (i["id"], i["name"],
-                       i["height"], i["weight"])
-            cursor.execute(query1, values1)
+            query_pokemon = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
+            values_pokemon = (pokemon["id"], pokemon["name"],
+                              pokemon["height"], pokemon["weight"])
+            cursor.execute(query_pokemon, values_pokemon)
             connection.commit()
-            query2 = 'INSERT INTO trainer VALUES (%s,%s,%s)'
-            query3 = 'INSERT INTO owned_by VALUES (%s,%s)'
-            for j in i["ownedBy"]:
-                if j not in trainers:
-                    trainers.append(j)
+
+            query_trainer = 'INSERT INTO trainer VALUES (%s,%s,%s)'
+
+            query_owned_by = 'INSERT INTO owned_by VALUES (%s,%s)'
+
+            query_type = 'INSERT INTO types VALUES(%s, %s)'
+            for type in pokemon["type"]:
+                if type not in types:
+                    types.append(type)
+                    type_id = len(types)
+
+                    # values_type = (type_id, type[])
+
+            query_has_type = 'INSERT INTO has_types VALUES (%s,%s)'
+            values_has_type = (pokemon["id"], pokemon["type"])
+            cursor.execute(query_has_type, values_has_type)
+            connection.commit()
+
+            for trainer in pokemon["ownedBy"]:
+                if trainer not in trainers:
+                    trainers.append(trainer)
                     trainer_id = len(trainers)
-                    values2 = (trainer_id, j["name"], j["town"])
-                    cursor.execute(query2, values2)
+                    values_trainer = (trainer_id, trainer["name"], trainer["town"])
+                    cursor.execute(query_trainer, values_trainer)
                     connection.commit()
                 else:
                     counter = 1
-                    for trainer in trainers:
-                        if trainer == j:
+                    for tr in trainers:
+                        if tr == trainer:
                             trainer_id = counter
                             break
                         counter += 1
-                values3 = (i["id"], trainer_id)
-                cursor.execute(query3, values3)
+                values_owned_by = (pokemon["id"], trainer_id)
+                cursor.execute(query_owned_by, values_owned_by)
                 connection.commit()
-        # except:
-        print("Error")
+
+    # except:
+    # print("Error: Failed to insert data into DB")
+
+
+insert_to_database()
 
 
 def heaviest_pokemon():
@@ -121,19 +142,19 @@ def find_roster(trainer_name):
             cursor.execute('''SELECT id 
                             FROM trainer 
                             WHERE name = (%s)'''
-                            ,trainer_name)
+                           , trainer_name)
             trainer_id = cursor.fetchall()[0]['id']
             cursor.execute('''SELECT pokemon_id 
                             FROM owned_by 
                             WHERE trainer_id = (%s)'''
-                            , trainer_id)
+                           , trainer_id)
             pokemon_ids = cursor.fetchall()
             pokemons = []
             for i in pokemon_ids:
                 cursor.execute('''SELECT name 
                                 FROM pokemon 
                                 WHERE id = (%s)'''
-                                , i['pokemon_id'])
+                               , i['pokemon_id'])
                 pokemons.append(cursor.fetchone())
             pokemon_names = []
             for i in pokemons:
@@ -203,6 +224,5 @@ def delete_pokemon_sql(pokemon_id):
             return "Deleted pokemon successfully"
     except:
         print("error")
-
 
 # insert_to_database()
