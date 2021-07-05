@@ -28,8 +28,8 @@ def new_pokemon():  # get params from body
 
 @app.route('/pokemon_by_type/<type>', methods=['GET'])
 def get_pokemon_by_type(type):
-    # find_by_type(type)
-    pass
+    res = find_by_type(type)
+    return Response("{}".format(res))
 
 
 @app.route('/delete_pokemon/<pokemon_id>', methods=['DELETE'])
