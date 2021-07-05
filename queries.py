@@ -131,10 +131,11 @@ def heaviest_pokemon():
 def find_by_type(type):
     try:
         with connection.cursor() as cursor:
-            cursor.execute('''SELECT name 
-                    FROM pokemon p, types t 
-                    WHERE p.pokemon_id = t.pokemon_id 
-                    AND t.type = (%s)''', type)
+            cursor.execute('''SELECT p.name 
+                    FROM pokemon p, has_types h, types t 
+                    WHERE p.id = h.pokemon_id
+                    AND  h.type_id = t.id
+                    AND t.type_name = (%s)''', type)
             pokemons = cursor.fetchall()
             pokemons_names = []
             for i in pokemons:
@@ -185,9 +186,8 @@ def find_roster(trainer_name):
             for i in pokemons:
                 pokemon_names.append(i['name'])
             return pokemon_names
-
     except:
-        print("error")
+        print("Error: Failed to find pokemons of this trainer")
 
 
 def finds_most_owned():
@@ -207,7 +207,7 @@ def finds_most_owned():
                 most_owned.append(pokemon['pokemon_id'])
             return most_owned
     except:
-        print("error")
+        print("Error: Failed to find the most owned pokemon")
 
 
 def delete_pokemon_sql(pokemon_id):
