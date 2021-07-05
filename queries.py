@@ -71,6 +71,7 @@ def add_pokemon(pokemon):
 def insert_to_database():
     data = get_data_from_json()
     trainers = []
+    types = []
     for pokemon in data:
         # try:
         with connection.cursor() as cursor:
@@ -118,9 +119,6 @@ def insert_to_database():
 
     # except:
     # print("Error: Failed to insert data into DB")
-
-
-# insert_to_database()
 
 
 def heaviest_pokemon():
