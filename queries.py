@@ -28,44 +28,57 @@ def get_data_from_API():
 
 def get_type_id():
     with connection.cursor() as cursor:
-        cursor.execute('''SELECT COUNT(*)
+        cursor.execute('''SELECT COUNT(*) as c
                         FROM types''')
-        result = cursor.fetchall()
-    return result + 1
+        result = cursor.fetchone()
+    return result['c'] + 1
+
+
+def insert_into_types(values):
+    with connection.cursor() as cursor:
+        type_query = 'INSERT INTO types values(%s, %s)'
+        cursor.execute(type_query, values)
+        connection.commit()
+
+
+def insert_into_has_types(values):
+    with connection.cursor() as cursor:
+        has_type_query = 'INSERT INTO has_types values(%s, %s)'
+        cursor.execute(has_type_query, values)
+        connection.commit()
 
 
 def add_pokemon(pokemon):
-    # try:
+    try:
         with connection.cursor() as cursor:
             query = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
             values = (pokemon['id'], pokemon['name'],
                       pokemon['height'], pokemon['weight'])
             cursor.execute(query, values)
             connection.commit()
-            if type(pokemon['type']) == str:# "<class 'str'>":
-                type_query = 'INSERT INTO types VALUES (%s, %s)'
-                type_values = (get_type_id(), pokemon['type'])
-                cursor.execute(type_query, type_values)
+            if type(pokemon['type']) is str:
+                type_id = get_type_id()
+                type_values = (type_id, pokemon['type'])
+                insert_into_types(type_values)
+                has_type_values = (pokemon['id'], type_id)
+                insert_into_has_types(has_type_values)
             else:
-                for type in pokemon['type']:
+                for t in pokemon['type']:
                     cursor.execute('''SELECT id 
                                     FROM types
                                     WHERE type = %s'''
-                                   , type)
+                                   , t)
                     result = cursor.fetchall()
                     type_id = get_type_id()
                     if result == 'no data':
-                        type_query = 'INSERT INTO types VALUES (%s, %s)'
-                        type_values = (type_id, type)
-                        cursor.execute(type_query, type_values)
-                    has_type_query = 'INSERT INTO has_types values(%s, %s)'
-                    has_type_values = (pokemon['id'], type_id)
-                    cursor.execute(has_type_query, has_type_values)
-                    connection.commit()
-            # return True
-    # except:
-    #     print("Error: Failed to add a new pokemon")
-    #     return False
+                        type_values = (type_id, t)
+                        insert_into_types(type_values)
+                        has_type_values = (pokemon['id'], type_id)
+                        insert_into_has_types(has_type_values)
+            return True
+    except:
+        print("Error: Failed to add a new pokemon")
+        return False
 
 
 def insert_to_database():
@@ -73,52 +86,33 @@ def insert_to_database():
     trainers = []
     types = []
     for pokemon in data:
-        # try:
-        with connection.cursor() as cursor:
-            add_pokemon(pokemon)
-            # query_pokemon = 'INSERT INTO pokemon VALUES (%s,%s,%s,%s)'
-            # values_pokemon = (pokemon['id'], pokemon['name'],
-            #                   pokemon['height'], pokemon['weight'])
-            # cursor.execute(query_pokemon, values_pokemon)
-            # connection.commit()
+        try:
+            with connection.cursor() as cursor:
+                add_pokemon(pokemon)
+            
+                query_trainer = 'INSERT INTO trainer VALUES (%s,%s,%s)'
 
-            query_trainer = 'INSERT INTO trainer VALUES (%s,%s,%s)'
+                query_owned_by = 'INSERT INTO owned_by VALUES (%s,%s)'
 
-            query_owned_by = 'INSERT INTO owned_by VALUES (%s,%s)'
-
-            # query_type = 'INSERT INTO types VALUES(%s, %s)'
-            # for type in pokemon['type']:
-            #     if type not in types:
-            #         types.append(type)
-            #         type_id = len(types)
-
-                    # values_type = (type_id, type[])
-
-            # query_has_type = 'INSERT INTO has_types VALUES (%s,%s)'
-            # values_has_type = (pokemon['id'], pokemon['type'])
-            # cursor.execute(query_has_type, values_has_type)
-            # connection.commit()
-
-            for trainer in pokemon['ownedBy']:
-                if trainer not in trainers:
-                    trainers.append(trainer)
-                    trainer_id = len(trainers)
-                    values_trainer = (trainer_id, trainer['name'], trainer['town'])
-                    cursor.execute(query_trainer, values_trainer)
+                for trainer in pokemon['ownedBy']:
+                    if trainer not in trainers:
+                        trainers.append(trainer)
+                        trainer_id = len(trainers)
+                        values_trainer = (trainer_id, trainer['name'], trainer['town'])
+                        cursor.execute(query_trainer, values_trainer)
+                        connection.commit()
+                    else:
+                        counter = 1
+                        for tr in trainers:
+                            if tr == trainer:
+                                trainer_id = counter
+                                break
+                            counter += 1
+                    values_owned_by = (pokemon['id'], trainer_id)
+                    cursor.execute(query_owned_by, values_owned_by)
                     connection.commit()
-                else:
-                    counter = 1
-                    for tr in trainers:
-                        if tr == trainer:
-                            trainer_id = counter
-                            break
-                        counter += 1
-                values_owned_by = (pokemon['id'], trainer_id)
-                cursor.execute(query_owned_by, values_owned_by)
-                connection.commit()
-
-    # except:
-    # print("Error: Failed to insert data into DB")
+        except:
+            print("Error: Failed to insert data into DB")
 
 
 def heaviest_pokemon():
