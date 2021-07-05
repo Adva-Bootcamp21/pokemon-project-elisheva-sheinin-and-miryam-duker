@@ -1,6 +1,6 @@
 from flask import Flask, Response, request
 
-from inserting import *
+from queries import *
 
 app = Flask(__name__)
 
