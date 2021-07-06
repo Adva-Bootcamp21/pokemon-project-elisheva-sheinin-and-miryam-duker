@@ -1,20 +1,16 @@
-import pymysql
+# import pymysql
 import json
 import requests
-import certifi
-import urllib3
-http = urllib3.PoolManager(
-    cert_reqs='CERT_REQUIRED',
-    ca_certs=certifi.where()
-)
-connection = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="",
-    db="pokemon",
-    charset="utf8",
-    cursorclass=pymysql.cursors.DictCursor
-)
+
+from config import connection
+# connection = pymysql.connect(
+#     host="localhost",
+#     user="root",
+#     password="",
+#     db="pokemon",
+#     charset="utf8",
+#     cursorclass=pymysql.cursors.DictCursor
+# )
 
 if connection.open:
     print("the connection is opened")
@@ -158,6 +154,7 @@ def insert_to_database():
         # except:
         #     print("Error: Failed to insert data into DB")
 
+
 def heaviest_pokemon():
     try:
         with connection.cursor() as cursor:
@@ -285,6 +282,7 @@ def select_trainer_id(trainer_name):
         result = cursor.fetchone()
         return result['id']
 
+
 def select_trainers(pokemon_id):
     with connection.cursor() as cursor:
         cursor.execute('''SELECT trainer_id
@@ -365,22 +363,22 @@ def update_pokemon_in_owned_by(evolved_pokemon, pokemon_id, trainer_id):
 # url = 'https://pokeapi.co/api/v2/pokemon/{}'.format('charmander')
 # pokemon_info = requests.get(url, verify=False)
 # a=pokemon_info.json()
-def update_types_for_pokemon(pokemon_name):
-    res = requests.get('https://pokeapi.co/api/v2/pokemon/{}'.format(pokemon_name), verify=False).json()
-    types = res["types"]
-    pokemon_id = res["id"]
-    # try:
-    print(types)
-    types_names = []
-    for type in types:
-        types_names.append(type["type"]["name"])
-    print("types_names {}".format(types_names))
-    for type in types_names:
-        type_id = get_type_id(type)
-        type_id = insert_into_types((+type_id, type))
-        insert_into_has_types((pokemon_id, type_id))
-        return "Updated pokemons type successfully"
-    # except:
-    #     print("Error: Failed to update types of pokemon")
+# def update_types_for_pokemon(pokemon_name):
+#     res = requests.get('https://pokeapi.co/api/v2/pokemon/{}'.format(pokemon_name), verify=False).json()
+#     types = res["types"]
+#     pokemon_id = res["id"]
+#     # try:
+#     print(types)
+#     types_names = []
+#     for type in types:
+#         types_names.append(type["type"]["name"])
+#     print("types_names {}".format(types_names))
+#     for type in types_names:
+#         type_id = get_type_id(type)
+#         type_id = insert_into_types((+type_id, type))
+#         insert_into_has_types((pokemon_id, type_id))
+#         return "Updated pokemons type successfully"
+#     # except:
+#     #     print("Error: Failed to update types of pokemon")
 
 

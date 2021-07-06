@@ -1,7 +1,8 @@
 from flask import Flask, Response, request
 
 from queries import *
-
+from client import evolve, update_types_for_pokemon
+from config import port
 app = Flask(__name__)
 
 
@@ -44,5 +45,13 @@ def update_types(pokemon_name):
     return Response("{}".format(res))
 
 
+@app.route('/evolve_pokemon/<pokemon_name>/<trainer_name>', methods=['PATCH'])
+def evolve_pokemon(pokemon_name, trainer_name):
+    succeeded = evolve(pokemon_name, trainer_name)
+    if succeeded:
+        return Response("Evolved pokemon {} of {} successfully".format(pokemon_name, trainer_name))
+    return Response("Evolution failed")
+
+
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=port)

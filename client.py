@@ -1,10 +1,33 @@
 import requests
-from queries import select_pokemon_id, select_trainer_id, select_trainers, update_pokemon_in_owned_by
+from config import url
+from queries import get_type_id, insert_into_types, insert_into_has_types,\
+                    select_pokemon_id, select_trainer_id, select_trainers, \
+                    update_pokemon_in_owned_by
+
+
+def update_types_for_pokemon(pokemon_name):
+    res = requests.get(url + pokemon_name, verify=False).json()
+    types = res["types"]
+    pokemon_id = res["id"]
+    # try:
+    print(types)
+    types_names = []
+    for type in types:
+        types_names.append(type["type"]["name"])
+    print("types_names {}".format(types_names))
+    for type in types_names:
+        type_id = get_type_id(type)
+        type_id = insert_into_types((+type_id, type))
+        insert_into_has_types((pokemon_id, type_id))
+        return "Updated pokemon's type successfully"
+    # except:
+    #     print("Error: Failed to update types of pokemon")
+
 
 def evolve(pokemon_name, trainer_name):
     # try:
-        url = 'https://pokeapi.co/api/v2/pokemon/{}'.format(pokemon_name)
-        pokemon_info = requests.get(url, verify=False).json()
+        api_url = url + pokemon_name
+        pokemon_info = requests.get(api_url, verify=False).json()
         species_url = pokemon_info['species']['url']
         species_info = requests.get(species_url, verify=False).json()
         evolution_chain_url = species_info['evolution_chain']['url']
@@ -28,10 +51,12 @@ def evolve(pokemon_name, trainer_name):
         if trainer_id not in trainers_id:
             # evolve_values = (
             update_pokemon_in_owned_by(evolved_pokemon, pokemon_id, trainer_id)
-        else:
-            print("evolved pokemon already exist")
+            return True
+        print("evolved pokemon already exist")
+        return False
     # except:
     #     print("Error: Failed to update this pokemon of this trainer")
+
 
 evolve('charmander', 'Jasmine')
 
