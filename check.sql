@@ -48,3 +48,18 @@ USE pokemon;
 --     try_id INTEGER PRIMARY KEY ,
 --     type VARCHAR(25) ARRAY[VARCHAR(25)]
 -- );
+-- SELECT id 
+-- FROM pokemon 
+-- WHERE name = 'charmeleon' 
+-- WHERE name = 'charmander' 
+
+-- SELECT trainer_id
+-- FROM owned_by
+-- WHERE pokemon_id = 5;
+-- UPDATE owned_by
+-- SET pokemon_id = 5
+-- WHERE pokemon_id = 4 AND trainer_id = 21
+
+SELECT name
+FROM trainer
+WHERE id = 21

@@ -1,7 +1,12 @@
 import pymysql
 import json
 import requests
-
+import certifi
+import urllib3
+http = urllib3.PoolManager(
+    cert_reqs='CERT_REQUIRED',
+    ca_certs=certifi.where()
+)
 connection = pymysql.connect(
     host="localhost",
     user="root",
@@ -220,3 +225,104 @@ def delete_pokemon_sql(pokemon_id):
             return "Deleted pokemon successfully"
     except:
         print("Error: Failed to delete a pokemon")
+
+
+def select_pokemon_id(pokemon_name):
+    with connection.cursor() as cursor:
+        cursor.execute('''SELECT id 
+                FROM pokemon 
+                WHERE name = %s'''
+                       , pokemon_name)
+        result = cursor.fetchone()
+        return result['id']
+
+
+def select_trainer_id(trainer_name):
+    with connection.cursor() as cursor:
+        cursor.execute('''SELECT id 
+                        FROM trainer 
+                        WHERE name = %s'''
+                       , trainer_name)
+        result = cursor.fetchone()
+        return result['id']
+
+def select_trainers(pokemon_id):
+    with connection.cursor() as cursor:
+        cursor.execute('''SELECT trainer_id
+                        FROM owned_by
+                        WHERE pokemon_id = %s'''
+                       , pokemon_id)
+        trainers = cursor.fetchall()
+        return trainers
+
+
+def update_pokemon_in_owned_by(evolved_pokemon, pokemon_id, trainer_id):
+    with connection.cursor() as cursor:
+        values = (evolved_pokemon, pokemon_id, trainer_id)
+        query = '''UPDATE owned_by
+                SET pokemon_id = %s
+                WHERE pokemon_id = %s 
+                AND trainer_id = %s'''
+        cursor.execute(query, values)
+
+
+# def evolve(pokemon_name, trainer_name):
+#     # try:
+#         url = 'https://pokeapi.co/api/v2/pokemon/{}'.format(pokemon_name)
+#         pokemon_info = requests.get(url, verify=False)
+#         a= pokemon_info.json()
+#         # pokemon_info = http.request('GET', url).json()
+#         species_url = pokemon_info['species']['url']
+#         species_info = requests.get(species_url, verify=False).json()
+#         # species_info = http.request('GET', species_url).json()
+#         evolution_chain_url = species_info['evolution_chain']['url']
+#         evolution_chain_info = requests.get(evolution_chain_url, verify=False)
+#         # evolution_chain_info = http.request('GET', evolution_chain_url)
+#         chain_item = evolution_chain_info['chain']
+#         current_form = chain_item['evolves_to']
+#         next_form = current_form['evolves_to']
+#
+#         while next_form['evolves_to']:
+#             current_form = next_form[:]
+#             next_form = current_form['evolves_to'][:]
+#         evolved_pokemon = current_form['species']['name']
+#         with connection.cursor() as cursor:
+#             cursor.execute('''SELECT id
+#                     FROM pokemon
+#                     WHERE name = %s'''
+#                     , pokemon_name)
+#             result = cursor.fetchone()
+#             pokemon_id = result['id']
+#             cursor.execute('''SELECT id
+#                             FROM trainer
+#                             WHERE name = %s'''
+#                            , trainer_name)
+#             result = cursor.fetchone()
+#             trainer_id = result['id']
+#             cursor.execute('''SELECT trainer_id
+#                                     FROM owned_by
+#                                     WHERE pokemon_id = %s'''
+#                                     , evolved_pokemon)
+#             trainers = cursor.fetchall()
+#             trainers_id = []
+#             for trainer in trainers:
+#                 trainers_id.append(trainer['trainer_id'])
+#             if trainer_id not in trainers_id:
+#                 evolve_query = '''UPDATE owned_by
+#                             SET pokemon_id = %s
+#                             WHERE pokemon_id = %s
+#                             AND trainer_id = %s'''
+#                 evolve_values = (evolved_pokemon, pokemon_id, trainer_id)
+#                 cursor.execute(evolve_query, evolve_values)
+#             else:
+#                 print("evolved pokemon already exist")
+#     # except:
+#     #     print("Error: Failed to update this pokemon of this trainer")
+#
+# # evolve('charmander', 'Jasmine')
+#
+# # url = 'https://pokeapi.co/api/v2/pokemon/{}'.format('charmander')
+# # pokemon_info = requests.get(url, verify=False).json()
+# url = 'https://pokeapi.co/api/v2/pokemon/{}'.format('charmander')
+# pokemon_info = requests.get(url, verify=False)
+# a=pokemon_info.json()
