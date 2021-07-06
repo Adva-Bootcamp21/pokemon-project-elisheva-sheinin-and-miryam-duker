@@ -9,23 +9,21 @@ def update_types_for_pokemon(pokemon_name):
     res = requests.get(url + pokemon_name, verify=False).json()
     types = res["types"]
     pokemon_id = res["id"]
-    # try:
-    print(types)
-    types_names = []
-    for type in types:
-        types_names.append(type["type"]["name"])
-    print("types_names {}".format(types_names))
-    for type in types_names:
-        type_id = get_type_id(type)
-        type_id = insert_into_types((+type_id, type))
-        insert_into_has_types((pokemon_id, type_id))
-        return "Updated pokemon's type successfully"
-    # except:
-    #     print("Error: Failed to update types of pokemon")
+    try:
+        types_names = []
+        for type in types:
+            types_names.append(type["type"]["name"])
+        for type in types_names:
+            type_id = get_type_id(type)
+            type_id = insert_into_types((type_id, type))
+            insert_into_has_types((pokemon_id, type_id))
+            return "Updated pokemon's type successfully"
+    except:
+        print("Error: Failed to update types of pokemon")
 
 
 def evolve(pokemon_name, trainer_name):
-    # try:
+    try:
         api_url = url + pokemon_name
         pokemon_info = requests.get(api_url, verify=False).json()
         species_url = pokemon_info['species']['url']
@@ -43,31 +41,19 @@ def evolve(pokemon_name, trainer_name):
 
         pokemon_id = select_pokemon_id(pokemon_name)
         trainer_id = select_trainer_id(trainer_name)
+        evolved_pokemon_id = select_pokemon_id(evolved_pokemon)
         trainers = select_trainers(evolved_pokemon)
 
         trainers_id = []
         for trainer in trainers:
             trainers_id.append(trainer['trainer_id'])
         if trainer_id not in trainers_id:
-            # evolve_values = (
-            update_pokemon_in_owned_by(evolved_pokemon, pokemon_id, trainer_id)
+            update_pokemon_in_owned_by(evolved_pokemon_id, pokemon_id, trainer_id)
             return True
         print("evolved pokemon already exist")
         return False
-    # except:
-    #     print("Error: Failed to update this pokemon of this trainer")
+    except:
+        print("Error: Failed to update this pokemon of this trainer")
 
 
 evolve('charmander', 'Jasmine')
-
-# url = 'https://pokeapi.co/api/v2/pokemon/{}'.format('charmander')
-# pokemon_info = requests.get(url, verify=False).json()
-# url = 'https://pokeapi.co/api/v2/pokemon/{}'.format('charmander')
-# pokemon_info = requests.get(url, verify=False)
-# a=pokemon_info.json()
-
-
-
-# url = 'https://pokeapi.co/api/v2/pokemon/{}'.format('charmander')
-# pokemon_info = requests.get(url, verify=False)
-# a=pokemon_info.json()

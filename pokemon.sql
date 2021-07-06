@@ -28,4 +28,8 @@ CREATE TABLE has_types(
   FOREIGN KEY (pokemon_id) REFERENCES pokemon(id) ON DELETE CASCADE,
   FOREIGN KEY (type_id) REFERENCES types(id) ON DELETE CASCADE,
   PRIMARY KEY (pokemon_id, type_id)
+<<<<<<< HEAD
 );
+=======
+);
+>>>>>>> master
