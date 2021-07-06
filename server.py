@@ -38,5 +38,11 @@ def delete_pokemon(pokemon_id):
     return Response("{}".format(res))
 
 
+@app.route('/update_types/<pokemon_name>', methods=['POST'])
+def update_types(pokemon_name):
+    res = update_types_for_pokemon(pokemon_name)
+    return Response("{}".format(res))
+
+
 if __name__ == '__main__':
     app.run(port=5000)
