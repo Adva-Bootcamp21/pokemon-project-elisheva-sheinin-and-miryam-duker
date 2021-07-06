@@ -60,6 +60,17 @@ USE pokemon;
 -- SET pokemon_id = 5
 -- WHERE pokemon_id = 4 AND trainer_id = 21
 
-SELECT name
-FROM trainer
-WHERE id = 21
+-- SELECT name
+-- FROM trainer
+-- WHERE id = 21
+
+-- UPDATE owned_by
+-- SET pokemon_id = 120
+-- WHERE pokemon_id = 5
+-- AND trainer_id = 21
+
+SELECT p.name
+FROM pokemon p, trainer t, owned_by o
+WHERE t.id = o.trainer_id
+AND p.id = o.pokemon_id
+AND t.name = 'Jasmine'
