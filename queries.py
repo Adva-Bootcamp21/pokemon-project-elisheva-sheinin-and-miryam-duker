@@ -3,6 +3,7 @@ import json
 import requests
 
 from config import connection
+
 # connection = pymysql.connect(
 #     host="localhost",
 #     user="root",
@@ -44,7 +45,7 @@ def get_type_id(type_name):
             all_types_names.append(type_element["type_name"])
         if type_name in all_types_names:
             q = "SELECT id FROM types WHERE type_name = (%s)"
-            cursor.execute(q,type_name)
+            cursor.execute(q, type_name)
             id = cursor.fetchone()['id']
         else:
             cursor.execute('''SELECT COUNT(*) as c
@@ -52,6 +53,7 @@ def get_type_id(type_name):
             result = cursor.fetchone()
             id = result['c'] + 1
     return id
+
 
 def insert_into_types(values):
     with connection.cursor() as cursor:
@@ -81,7 +83,7 @@ def insert_into_has_types(values):
         print(all_types)
         all_types_names = []
         for type_element in all_types:
-            all_types_names.append((type_element["pokemon_id"],type_element["type_id"]))
+            all_types_names.append((type_element["pokemon_id"], type_element["type_id"]))
         if values not in all_types_names:
             has_type_query = 'INSERT INTO has_types values(%s, %s)'
             cursor.execute(has_type_query, values)
@@ -302,7 +304,6 @@ def update_pokemon_in_owned_by(evolved_pokemon, pokemon_id, trainer_id):
                 AND trainer_id = %s'''
         cursor.execute(query, values)
 
-
 # def evolve(pokemon_name, trainer_name):
 #     # try:
 #         url = 'https://pokeapi.co/api/v2/pokemon/{}'.format(pokemon_name)
@@ -380,5 +381,3 @@ def update_pokemon_in_owned_by(evolved_pokemon, pokemon_id, trainer_id):
 #         return "Updated pokemons type successfully"
 #     # except:
 #     #     print("Error: Failed to update types of pokemon")
-
-
